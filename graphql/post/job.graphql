@@ -1,0 +1,31 @@
+"""
+工作
+"""
+type Job {
+
+    id: ID!
+
+    "標題"
+    title: String!
+
+    "狀態"
+    status: StatusBtJobs!
+
+    "新建日期"
+    created_at: DateTime
+
+    "更新日期"
+    updated_at: DateTime
+}
+
+extend type Query {
+
+    "所有工作列表"
+    jobs: [Job!]! @all
+
+}
+enum StatusBtJobs {
+    QUEUED
+    PROCESSING
+    COMPLETE
+}

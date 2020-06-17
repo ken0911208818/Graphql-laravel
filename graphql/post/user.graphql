@@ -1,0 +1,67 @@
+"""
+會員
+"""
+type User {
+
+    "辨識碼"
+    id: ID!
+
+    "名字"
+    name: String!
+
+    "信箱"
+    email: String!
+
+    "建立日期"
+    created_at: DateTime
+
+    "更新日期"
+    updated_at: DateTime
+
+    "相關工作"
+    jobs(status: JobStatus ): [Job!]! @hasMany(type: "paginator", scopes: ["ofUserType"])
+
+    "相關的貼文"
+    posts: [Post!]! @hasMany(type: "paginator")
+
+}
+
+extend type Query {
+    "所有使用者"
+    users: [User] @all
+    "[使用者]用名字來做搜尋"
+    user(name: String! @eq): [User] @field(resolver: "App\\Graphql\\Queries\\UserQuery@user")
+    """
+    從狀態找job
+    """
+    jobsByStatus(
+        status: StatusBtJobs @builder(method: "App\\Job@byStatus")
+    ): [Job!]! @paginate
+
+    """
+    使用者資訊
+    """
+    me: User @auth
+}
+scalar Mixed @scalar(class: "MLL\\GraphQLScalars\\Mixed")
+
+enum JobStatus {
+    QUEUED
+    PROCESSING
+    COMPLETE
+}
+
+extend type Mutation {
+    "使用者登入"
+    loginUser(
+        email: String! @rules(apply: ["required","email"]),
+        password: String! @rules(apply: ["required","max:20"])
+    ):  Mixed @field(resolver: "AuthMutator@login")
+
+
+}
+extend type Mutation @middleware(checks: ["auth"]) {
+    "使用者登出"
+    logout: [String!] @field(resolver: "Authmutator@logout")
+}
+

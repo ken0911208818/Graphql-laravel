@@ -1,0 +1,26 @@
+"""
+貼文
+"""
+type Post {
+
+    "辨識碼"
+    id: ID!
+
+    "標題"
+    title: String
+
+    "內容"
+    content: String
+
+    "新建日期"
+    created_at: DateTime
+
+    "更新日期"
+    updated_at: DateTime
+}
+
+extend type Query {
+    "所有貼文"
+    post: [Post!]! @all
+
+}

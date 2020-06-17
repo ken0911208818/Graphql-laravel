@@ -1,0 +1,22 @@
+"""
+貼文中的評論
+"""
+type Comment {
+
+    "辨識碼"
+    id: ID!
+    
+    "回覆的評論"
+    reply: String
+
+    "新建日期"
+    created_at: DateTime
+
+    "更新日期"
+    updated_at: DateTime
+}
+
+ type Query {
+    "所有的評論"
+    comments: [Comment!]! @all
+}
