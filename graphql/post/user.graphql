@@ -12,6 +12,7 @@ type User {
     "信箱"
     email: String!
 
+
     "建立日期"
     created_at: DateTime
 
@@ -35,13 +36,17 @@ extend type Query {
     從狀態找job
     """
     jobsByStatus(
-        status: StatusBtJobs @builder(method: "App\\Job@byStatus")
+        status: JobStatus @builder(method: "App\\Job@byStatus")
     ): [Job!]! @paginate
 
     """
     使用者資訊
     """
-    me: User @auth
+    me: User
+        @middleware(
+            checks: ["auth:api"]
+        )
+        @field(resolver: "App\\Graphql\\Queries\\UserQuery@me")
 }
 scalar Mixed @scalar(class: "MLL\\GraphQLScalars\\Mixed")
 
@@ -50,18 +55,24 @@ enum JobStatus {
     PROCESSING
     COMPLETE
 }
+extend type Result{
+    result: User!
+    token: String!
 
+}
 extend type Mutation {
     "使用者登入"
     loginUser(
         email: String! @rules(apply: ["required","email"]),
         password: String! @rules(apply: ["required","max:20"])
-    ):  Mixed @field(resolver: "AuthMutator@login")
-
-
+    ):  Result @field(resolver: "AuthMutator@login")
 }
 extend type Mutation @middleware(checks: ["auth"]) {
     "使用者登出"
-    logout: [String!] @field(resolver: "Authmutator@logout")
+    logout: Mixed
+        @middleware(
+            checks:["auth:api"]
+        )
+        @field(resolver: "Authmutator@logout")
 }
 

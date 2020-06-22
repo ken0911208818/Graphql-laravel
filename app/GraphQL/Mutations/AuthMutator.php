@@ -4,9 +4,11 @@ namespace App\GraphQL\Mutations;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use RuntimeException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\JWTAuth;
 class AuthMutator extends Controller
@@ -21,16 +23,14 @@ class AuthMutator extends Controller
         $credentials = Arr::only($args, ['email', 'password']);
         try {
             if (!$token = $this->JWTAuth->attempt($credentials)) {
-                return [
-                    'error' => '帳號密碼錯誤',
-                    'code' => '20001'
-                ];
+                throw new RuntimeException('email or password error');
             }
 
         } catch(JWTException $e) {
             return [
-                'error' => '帳號密碼錯誤',
-                'code' => '20001'
+                'result' => '帳號密碼錯誤',
+                'token' => '',
+                'code' => '40100'
             ];
         }
 
@@ -39,13 +39,11 @@ class AuthMutator extends Controller
 
         $user->api_token = $token;
         $user->save();
-        $data = [
-            'token' => $token,
-            'user' => $user
-        ];
+
         $all =[
-            'result'=> $data,
-            'code' => '200001'
+            'result'=> $user,
+            'token' => $token,
+            'code'  => '200001'
         ];
 
         return $all;

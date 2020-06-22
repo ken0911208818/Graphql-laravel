@@ -21,6 +21,14 @@ type Post {
 
 extend type Query {
     "所有貼文"
-    post: [Post!]! @all
+    posts: [Post!]! @all
 
 }
+# extend type Query {
+#     "所有貼文"
+#     posts: [Post!]! @middleware(
+#         checks: ["auth:api"]
+#     )
+#     @all
+
+# }
